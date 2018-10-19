@@ -1,4 +1,10 @@
 const axios = require('axios');
+const jwt = require('jsonwebtoken');
+const jwtKey = require('../_secrets/keys').jwtKey;
+const bcrypt = require('bcryptjs');
+
+// Instantiate Database
+const db = require('../database/dbConfig.js')
 
 const { authenticate } = require('./middlewares');
 
@@ -9,7 +15,21 @@ module.exports = server => {
 };
 
 function register(req, res) {
-  // implement user registration
+  const credentials = req.body;
+
+  const hash = bcrypt.hashSync(credentials.password, 15);
+  credentials.password = hash;
+
+  db('users')
+  .insert(credentials)
+  .then(ids => {
+    const id = ids[0];
+    const token = jwt.sign({ username: credentials.username }, jwtKey, { expiresIn: '10m' });
+    res.status(200).json({ newUser: id, token  })
+  })
+  .catch( error => {
+    response.status(500).json(err);
+  })
 }
 
 function login(req, res) {
