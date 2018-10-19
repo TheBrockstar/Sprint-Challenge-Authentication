@@ -11,7 +11,7 @@ const { authenticate } = require('./middlewares');
 module.exports = server => {
   server.post('/api/register', register);
   server.post('/api/login', login);
-  server.get('/api/jokes', authenticate, getJokes);
+  server.get('/api/jokes', getJokes);
 };
 
 function register(request, response) {
@@ -56,10 +56,10 @@ function getJokes(request, response) {
     .get(
       'https://08ad1pao69.execute-api.us-east-1.amazonaws.com/dev/random_ten'
     )
-    .then(response => {
-      response.status(200).json(response.data);
+    .then(jokes => {
+      response.status(200).json(jokes.data);
     })
-    .catch(err => {
-      response.status(500).json({ message: 'Error Fetching Jokes', error: err });
+    .catch(error => {
+      response.status(500).json({ message: 'Error Fetching Jokes', error: error });
     });
 }
